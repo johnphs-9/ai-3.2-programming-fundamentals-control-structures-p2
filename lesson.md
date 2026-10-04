@@ -35,8 +35,7 @@ Java's control flow falls into three categories:
 ```java
 public class LearnControlFlow {
   public static void main(String[] args) {
-    int budget = 1000;
-    int expense = 90;
+    int score = 75;
   }
 }
 ```
@@ -284,6 +283,45 @@ static String describe(Object obj) {
 
 Here, `case Integer i when i < 0` checks both **type** (is it an `Integer`?) and **value** (is it negative?) before matching. Without a `when` clause, pattern matching only checks type.
 
+**Where these methods go, and how to call them.** Both `format` and `describe` are defined **outside** `main` (they are separate methods inside the class). To actually run them, call them from inside `main` and print what they return:
+
+```java
+public class PatternMatchingDemo {
+
+  public static void main(String[] args) {
+    System.out.println(format(42));        // Integer: 42
+    System.out.println(format("hello"));   // String: HELLO
+    System.out.println(format(null));      // null
+
+    System.out.println(describe(-5));      // Negative integer: -5
+    System.out.println(describe(0));       // Zero
+    System.out.println(describe(""));      // Empty string
+  }
+
+  // methods live here — outside main, but inside the class
+  static String format(Object obj) {
+    return switch (obj) {
+      case Integer i -> "Integer: " + i;
+      case String s -> "String: " + s.toUpperCase();
+      case null -> "null";
+      default -> "Unknown type";
+    };
+  }
+
+  static String describe(Object obj) {
+    return switch (obj) {
+      case Integer i when i < 0 -> "Negative integer: " + i;
+      case Integer i when i == 0 -> "Zero";
+      case Integer i -> "Positive integer: " + i;
+      case String s when s.isEmpty() -> "Empty string";
+      case String s -> "String: " + s.toUpperCase();
+      case null -> "null";
+      default -> "Unknown type";
+    };
+  }
+}
+```
+
 A few things worth noting:
 - This works the same whether it's inside a `static` method, an instance method, or directly inside `main` — there's no required structure; the examples above just use a separate reusable method as good practice.
 - The return type can be anything, same as any switch expression — not limited to `String`.
@@ -419,13 +457,15 @@ Java also provides many **predefined methods** (`System.out.println`, `Math.max`
 > Note: "method" and "function" are often used interchangeably, but strictly speaking, a **function** is a static method that belongs to the class itself, while a **method** is a non-static (instance) method that belongs to an object. `Arrays.toString()` is technically a function; `myString.toUpperCase()` is technically a method.
 
 ```java
-public static void addNumbers(int a, int b) {
-  System.out.println(a + b);
+public class MyApp {
+  public static void main(String[] args) {
+    addNumbers(5, 10);   // calling the method
+  }
+
+  public static void addNumbers(int a, int b) {
+    System.out.println(a + b);
+  }
 }
-```
-Called from `main` as:
-```java
-addNumbers(5, 10);
 ```
 
 ### Method Structure
@@ -523,7 +563,7 @@ Here, `startEngine()` is the only public entry point; the three private methods 
 
 **Method overloading** means defining two or more methods in the same class with the same name but different parameter lists, so each version handles a different set of inputs. Java decides which version to run based on the arguments passed at the call site — this is resolved at compile time.
 
-We'll build all of these inside a single class, `BonusCalculator`, so the overloads stay related:
+We'll put all the overloaded methods inside a single class, `BonusCalculator`, so they stay related. Then we call them from a separate `MyApp` class:
 
 ```java
 public class BonusCalculator {
@@ -537,20 +577,19 @@ public class BonusCalculator {
   public static double calcBonus(double salary, double rate) {
     return salary * rate;
   }
-
- 
-  }
-
+}
 ```
-
-Both methods share the name `calcBonus`, but each has a different parameter list — so they are valid overloads. Java picks the right one from the arguments you pass:
 
 ```java
-BonusCalculator.calcBonus(5000);                      // uses version 1
-BonusCalculator.calcBonus(5000, 0.2);                 // uses version 2
+public class MyApp {
+  public static void main(String[] args) {
+    System.out.println(BonusCalculator.calcBonus(5000));        // uses version 1 → 500.0
+    System.out.println(BonusCalculator.calcBonus(5000, 0.2));   // uses version 2 → 1000.0
+  }
+}
 ```
 
-Since `calcBonus` is a `static` method, it is called with the class-name prefix (`BonusCalculator.calcBonus(...)`) from another class.
+Both methods share the name `calcBonus`, but each has a different parameter list — so they are valid overloads. Java picks the right one from the arguments you pass. Since `calcBonus` is a `static` method, it is called with the class-name prefix (`BonusCalculator.calcBonus(...)`) from the `MyApp` class.
 
 ### Rules for Overloading
 
@@ -562,12 +601,12 @@ The **method signature** is the method name plus its parameter list. The **retur
 Using our `calcBonus` methods as reference:
 
 ```java
-public static double calcBonus(double salary)                    // ✅ valid
-public static double calcBonus(double salary, double rate)        // ✅ valid — different number of parameters
-public static double calcBonus(double salary, Position position) // ✅ valid — different parameter type
+public static double calcBonus(double salary)                     // ✅ valid
+public static double calcBonus(double salary, double rate)         // ✅ valid — different number of parameters
+public static double calcBonus(double salary, Position position)   // ✅ valid — different parameter type
 
-public static int    calcBonus(double salary)                    // ❌ invalid — same signature as version 1
-                                                                 //    (return type alone is not enough)
+public static int    calcBonus(double salary)                     // ❌ invalid — same signature as version 1
+                                                                  //    (return type alone is not enough)
 ```
 
 The last one fails because its signature — `calcBonus(double)` — is identical to the first version. Changing only the return type from `double` to `int` does not make it a different method, because the return type is not part of the signature.
