@@ -1,0 +1,20 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "PatternMatchingDemo",
+            "request": "launch",
+            "mainClass": "workings.PatternMatchingDemo",
+            "projectName": "ai-3.2-programming-fundamentals-control-structures-p2_b1fe72c9"
+        },
+        {
+            "type": "java",
+            "name": "Launch currently open file",
+            "request": "launch",
+            "mainClass": "workings.${fileBasenameNoExtension}",
+            "projectName": "ai-3.2-programming-fundamentals-control-structures-p2_b1fe72c9",
+            "preLaunchTask": "javac: build workings"
+        }
+    ]
+}
